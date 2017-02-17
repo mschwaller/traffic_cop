@@ -11,6 +11,8 @@ def main():
     import os
     import math
     #import errno
+    from subprocess import popen
+
 
 
     print "***STARTING***"    
@@ -18,10 +20,10 @@ def main():
     # this is the traffic cop for running write_latlon on Pleiades
 
     ########################configurable parameters###############################
-    config_dir = "/Users/mschwall/~Essentials/penguin_stuff/L7_SLC_off_tests"
-    config_file_name = config_dir + "/SLC_off_exec_config_file_v1.txt"
+    config_dir = "/Users/nivethamahalakshmibalasamy/Documents/Nivetha/traffic_cop"
+    config_file_name = config_dir + "/SLC_off_exec_config_file_v2.txt"
     expected_config_parms = 7 # total number of variable to be read from the config file
-    version_name = "run_exec_v2.py"
+    version_name = "run_exec_v4.py"
     ##############################################################################
     
     ########################placeholder parameters###############################
@@ -196,6 +198,43 @@ def main():
         jobb_file.close()
         print "***opened and closed this file:"
         print "   " + new_config_path
+
+
+        # loop through the chunks and launch pbs script for each chunk of data
+        for pbsindex in range(1, int(num_chunks+1)):
+            output, input = popen2('qsub', shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE, close_fds=True)
+
+            job_name_pbs = "L7SLC_%d" % pbsindex
+            processors = "select=1:ncpus=8:model=san"
+            devel = "devel"
+            walltime = "0:15:00"
+            command = ""
+            error = "oe"
+
+            job_string = """ #PBS -S /bin/bash
+                             #PBS -N cfd
+                             #PBS -N %s
+                             #PBS -l %s 
+                             #PBS -q %s
+                             #PBS -l walltime=%s
+                             #PBS -j %s
+                             export MODULEPATH=$MODULEPATH:/nex/modules/files 
+                             module load envi/5.3_nex 
+                             envi new_batfile_path
+                             #PBS -o ./output/%s.out
+                             cd $PBS_O_WORKDIR
+                     """%(job_name_pbs,processors,devel,walltime,error,output)
+
+            input.write(job_string)
+            input.close
+
+
+
+
+
+
+
+
 
             
     
