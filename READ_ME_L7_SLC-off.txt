@@ -1,4 +1,4 @@
-This branch contains all of the code and input files needed to run the Landsat-7 SLC-off 
+This branch (the L7_SLC-off branch) contains all of the code and input files needed to run the Landsat-7 SLC-off 
 retrievals on Pleiades 
 
 ENVI+IDL Code: 
